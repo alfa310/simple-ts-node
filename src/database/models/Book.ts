@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { BookDocument } from "../types";
+import { BookDocument } from "../../entities";
 
 const BookSchema = new Schema({
   title: { type: String, required: "tittle cannot be blank" },

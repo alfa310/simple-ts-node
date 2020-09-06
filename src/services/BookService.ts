@@ -1,11 +1,14 @@
-import { withLogger } from "../config/loggers";
-import { ServiceContext, AsyncFunction } from "../common/types";
-import { BookProps, BookDocument } from "../database/types";
-import { InputBook } from "../routers/bookRouter";
+import { InputBook, BookDocument, ServiceContext } from "../entities";
+import {
+  withLoggerFor1Arg,
+  withLoggerFor2Args,
+  withContextFor1Arg,
+  withContextFor0Args,
+} from "../common/generics";
 
 async function createBookService(
   context: ServiceContext,
-  book: BookProps
+  book: InputBook
 ): Promise<BookDocument> {
   const { bookPort } = context.ports;
   const createdBook = await bookPort.create(book);
@@ -20,16 +23,6 @@ async function getAllBooksService(
   return books;
 }
 
-function withContext(
-  fn: AsyncFunction,
-  context: ServiceContext
-): AsyncFunction {
-  return async function _wrappedFn(...args: Array<any>) {
-    const result = await fn(context, ...args);
-    return result;
-  };
-}
-
 export interface BookServiceInterface {
   createBook: (book: InputBook) => Promise<BookDocument>;
   getAllBooks: () => Promise<Array<BookDocument>>;
@@ -39,13 +32,12 @@ function initServices(context: ServiceContext): BookServiceInterface {
   const layer = "BookService";
   const { logger } = context;
   return {
-    createBook: withContext(
-      withLogger(logger, layer, createBookService),
+    createBook: withContextFor1Arg(
+      withLoggerFor2Args(logger, layer, createBookService),
       context
     ),
-
-    getAllBooks: withContext(
-      withLogger(logger, layer, getAllBooksService),
+    getAllBooks: withContextFor0Args(
+      withLoggerFor1Arg(logger, layer, getAllBooksService),
       context
     ),
   };

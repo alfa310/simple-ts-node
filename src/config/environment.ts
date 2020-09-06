@@ -1,9 +1,11 @@
 import dotenv from "dotenv";
-import { Port, DatabaseURI } from "./types";
+
+export type DatabaseURI = string;
+export type Port = string;
 
 export interface Environment {
-  port: Port;
   databaseURI: DatabaseURI;
+  port: Port;
 }
 
 export function getMissingEnvironmentVariables(): string[] {

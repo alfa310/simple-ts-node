@@ -1,10 +1,10 @@
 import mongoose, { Model } from "mongoose";
 import models from "./models";
-import { BookDocument } from "./types";
-import { DatabaseURI } from "../config/types";
+import { BookDocument } from "../entities";
+import { DatabaseURI } from "../config/environment";
 
 export interface Database {
-  Book: Model<BookDocument, {}>;
+  Book: Model<BookDocument>;
 }
 
 export interface DatabaseConnector {

@@ -30,16 +30,25 @@
     "@types/loglevel": "^1.6.3",
     "@types/mongoose": "^5.7.36",
     "@types/node": "^14.6.4",
+    "@typescript-eslint/eslint-plugin": "^4.0.1",
+    "@typescript-eslint/parser": "^4.0.1",
+    "eslint": "^7.8.1",
     "faker": "^5.1.0",
+    "husky": "^4.2.5",
     "jest": "^26.4.2",
     "nodemon": "^2.0.4",
+    "prettier": "^2.1.1",
     "ts-jest": "^26.3.0",
     "ts-node": "^9.0.0",
     "typescript": "^4.0.2"
   },
   "scripts": {
     "start": "nodemon ./src/index.ts",
+    "lint": "eslint . --ext .ts --ignore-path .gitignore",
+    "prettier": "prettier --ignore-path .gitignore \"**/*.+(js|ts|json)\"",
+    "check-format": "yarn prettier --list-different \"**/*.+(js|ts|json)\"",
     "test": "jest --coverage --forceExit --detectOpenHandles",
-    "build": "tsc --project ./"
+    "build": "tsc --project ./",
+    "validate": "yarn lint && yarn test && yarn build"
   }
 }

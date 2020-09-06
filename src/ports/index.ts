@@ -1,5 +1,5 @@
 import BookPort, { BookPortInterface } from "./BookPort";
-import { PortContext } from "./types";
+import { PortContext } from "../entities";
 
 export interface Ports {
   bookPort: BookPortInterface;

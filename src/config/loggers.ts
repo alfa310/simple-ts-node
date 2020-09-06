@@ -2,7 +2,10 @@ import winston from "winston";
 import expressWinston from "express-winston";
 import { Handler, ErrorRequestHandler } from "express";
 import { RootLogger } from "loglevel";
-import { AsyncNamedFunction } from "../common/types";
+
+export interface GenericContext {
+  logger: RootLogger;
+}
 
 export function getLogger(): Handler {
   return expressWinston.logger({
@@ -30,24 +33,4 @@ export function getErrorLogger(): ErrorRequestHandler {
       winston.format.json()
     ),
   });
-}
-
-
-
-export function withLogger(
-  logger: RootLogger,
-  layer: string,
-  fn: AsyncNamedFunction
-) {
-  return async function _wrappedFn(...args: Array<any>) {
-    try {
-      logger.info(`[${layer}] - ${fn.name} start`);
-      const result = await fn(...args);
-      logger.info(`[${layer}] - ${fn.name} end`);
-      return result;
-    } catch (error) {
-      logger.error(`[${layer}] - ${fn.name} error`);
-      throw error;
-    }
-  };
 }

@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import faker from "faker";
-import { BookDocument } from "../../src/database/types";
-import { InputBook } from "../../src/routers/bookRouter";
+import { InputBook, BookDocument, ServiceContext } from "../../src/entities";
 import { RootLogger } from "loglevel";
 import { BookPortInterface } from "../../src/ports/BookPort";
 import { Ports } from "../../src/ports";
-import { ServiceContext } from "../../src/common/types";
 
 export function buildBook(overrides?: any): BookDocument {
   return {

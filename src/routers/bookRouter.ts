@@ -2,8 +2,13 @@ import express, { Router, Request, Response } from "express";
 import bodyParser from "body-parser";
 import Joi from "joi";
 import { BookService } from "../services";
-import { BookDocument, BookProps } from "../database/types";
-import { ServiceContext, AsyncFunction } from "../common/types";
+import {
+  BookDocument,
+  InputBook,
+  BookResponse,
+  ServiceContext,
+} from "../entities";
+import { withContextFor2Args, withValidInput } from "../common/generics";
 
 function getBookRouter(context: ServiceContext): Router {
   const router = express.Router();
@@ -11,56 +16,10 @@ function getBookRouter(context: ServiceContext): Router {
   router.post(
     "/",
     jsonParser,
-    withValidInput(withContext(createBook, context))
+    withValidInput(withContextFor2Args(createBook, context), validateInputBook)
   );
-  router.get("/", withContext(getAllBooks, context));
+  router.get("/", withContextFor2Args(getAllBooks, context));
   return router;
-}
-
-export interface InputBook {
-  title: string;
-  content: string;
-}
-
-interface Book {
-  id: string;
-  title: string;
-  content: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-function parseBook(book: BookDocument): Book {
-  return {
-    id: book._id,
-    title: book.title,
-    content: book.content,
-    createdAt: book.createdAt.toUTCString(),
-    updatedAt: book.updatedAt.toUTCString(),
-  };
-}
-
-function withValidInput(fn: AsyncFunction): AsyncFunction {
-  return async function wrappedFn(req: Request, res: Response) {
-    try {
-      await validateInputBook(req.body);
-    } catch (error) {
-      res.status(400);
-      return res.json({ error });
-    }
-    const result = await fn(req, res);
-    return result;
-  };
-}
-
-function withContext(
-  fn: AsyncFunction,
-  context: ServiceContext
-): AsyncFunction {
-  return async function wrappedFn(req: Request, res: Response) {
-    const result = await fn(context, req, res);
-    return result;
-  };
 }
 
 async function validateInputBook(inputBook: InputBook): Promise<void> {
@@ -71,13 +30,24 @@ async function validateInputBook(inputBook: InputBook): Promise<void> {
   await schema.validateAsync(inputBook);
 }
 
+function parseBook(book: BookDocument): BookResponse {
+  return {
+    id: book._id,
+    title: book.title,
+    content: book.content,
+    createdAt: book.createdAt.toUTCString(),
+    updatedAt: book.updatedAt.toUTCString(),
+  };
+}
+
 async function createBook(
   context: ServiceContext,
   req: Request,
   res: Response
 ) {
   const service = BookService.initServices(context);
-  const book = await service.createBook(req.body);
+  const inputBook: InputBook = req.body;
+  const book = await service.createBook(inputBook);
   res.status(200);
   return res.json(parseBook(book));
 }

@@ -1,20 +1,15 @@
-import { AsyncFunction } from "../common/types";
-import { withLogger } from "../config/loggers";
 import { Database } from "../database";
-import { BookProps, BookDocument } from "../database/types";
-import { PortContext } from "./types";
-
-function withDatabase(fn: AsyncFunction, context: PortContext): AsyncFunction {
-  const { database } = context;
-  return async function _wrappedFn(...args: Array<unknown>) {
-    const result = await fn(database, ...args);
-    return result;
-  };
-}
+import { PortContext, InputBook, BookDocument } from "../entities";
+import {
+  withLoggerFor1Arg,
+  withLoggerFor2Args,
+  withDatabaseFor0Args,
+  withDatabaseFor1Arg,
+} from "../common/generics";
 
 async function createPort(
   database: Database,
-  book: BookProps
+  book: InputBook
 ): Promise<BookDocument> {
   const { Book } = database;
   const newBook = new Book(book);
@@ -29,17 +24,22 @@ async function getAllPort(database: Database): Promise<Array<BookDocument>> {
 }
 
 export interface BookPortInterface {
-  create: (book: BookProps) => Promise<BookDocument>;
+  create: (book: InputBook) => Promise<BookDocument>;
   getAll: () => Promise<Array<BookDocument>>;
 }
 
 function initPorts(context: PortContext): BookPortInterface {
   const layer = "BookPort";
   const { logger } = context;
-
   return {
-    create: withDatabase(withLogger(logger, layer, createPort), context),
-    getAll: withDatabase(withLogger(logger, layer, getAllPort), context),
+    create: withDatabaseFor1Arg(
+      withLoggerFor2Args(logger, layer, createPort),
+      context
+    ),
+    getAll: withDatabaseFor0Args(
+      withLoggerFor1Arg(logger, layer, getAllPort),
+      context
+    ),
   };
 }
 
