@@ -1,9 +1,14 @@
 import express, { Router, Request, Response } from "express";
 
-function getMathRouter(): Router {
+import { logFor2 } from "../common/actions";
+import { ServiceContext } from "../entities";
+
+function getMathRouter(context: ServiceContext): Router {
   const router = express.Router();
-  router.get("/add", add);
-  router.get("/subtract", subtract);
+  const { logger } = context;
+  const layer = "MathRouter";
+  router.get("/add", logFor2(logger, layer, add));
+  router.get("/subtract", logFor2(logger, layer, subtract));
   return router;
 }
 // all the controller and utility functions here:

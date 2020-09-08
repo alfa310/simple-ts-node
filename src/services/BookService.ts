@@ -1,10 +1,6 @@
 import { InputBook, BookDocument, ServiceContext } from "../entities";
-import {
-  withLoggerFor1Arg,
-  withLoggerFor2Args,
-  withContextFor1Arg,
-  withContextFor0Args,
-} from "../common/generics";
+import { logFor1, logFor2 } from "../common/actions";
+import { attachFor0, attachFor1 } from "../common/attachers";
 
 async function createBookService(
   context: ServiceContext,
@@ -32,13 +28,10 @@ function initServices(context: ServiceContext): BookServiceInterface {
   const layer = "BookService";
   const { logger } = context;
   return {
-    createBook: withContextFor1Arg(
-      withLoggerFor2Args(logger, layer, createBookService),
-      context
-    ),
-    getAllBooks: withContextFor0Args(
-      withLoggerFor1Arg(logger, layer, getAllBooksService),
-      context
+    createBook: attachFor1(context, logFor2(logger, layer, createBookService)),
+    getAllBooks: attachFor0(
+      context,
+      logFor1(logger, layer, getAllBooksService)
     ),
   };
 }

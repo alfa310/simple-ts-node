@@ -8,17 +8,23 @@ import {
   BookResponse,
   ServiceContext,
 } from "../entities";
-import { withContextFor2Args, withValidInput } from "../common/generics";
+import { validateInput, logFor3 } from "../common/actions";
+import { attachFor2 } from "../common/attachers";
 
 function getBookRouter(context: ServiceContext): Router {
   const router = express.Router();
   const jsonParser = bodyParser.json();
+  const layer = "BookRouter";
+  const { logger } = context;
   router.post(
     "/",
     jsonParser,
-    withValidInput(withContextFor2Args(createBook, context), validateInputBook)
+    validateInput(
+      attachFor2(context, logFor3(logger, layer, createBook)),
+      validateInputBook
+    )
   );
-  router.get("/", withContextFor2Args(getAllBooks, context));
+  router.get("/", attachFor2(context, logFor3(logger, layer, getAllBooks)));
   return router;
 }
 

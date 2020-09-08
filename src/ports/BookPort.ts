@@ -1,11 +1,7 @@
 import { Database } from "../database";
 import { PortContext, InputBook, BookDocument } from "../entities";
-import {
-  withLoggerFor1Arg,
-  withLoggerFor2Args,
-  withDatabaseFor0Args,
-  withDatabaseFor1Arg,
-} from "../common/generics";
+import { logFor1, logFor2 } from "../common/actions";
+import { attachFor0, attachFor1 } from "../common/attachers";
 
 async function createPort(
   database: Database,
@@ -30,16 +26,10 @@ export interface BookPortInterface {
 
 function initPorts(context: PortContext): BookPortInterface {
   const layer = "BookPort";
-  const { logger } = context;
+  const { logger, database } = context;
   return {
-    create: withDatabaseFor1Arg(
-      withLoggerFor2Args(logger, layer, createPort),
-      context
-    ),
-    getAll: withDatabaseFor0Args(
-      withLoggerFor1Arg(logger, layer, getAllPort),
-      context
-    ),
+    getAll: attachFor0(database, logFor1(logger, layer, getAllPort)),
+    create: attachFor1(database, logFor2(logger, layer, createPort)),
   };
 }
 
